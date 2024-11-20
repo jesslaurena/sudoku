@@ -1,11 +1,5 @@
 import math,random
 
-"""
-This was adapted from a GeeksforGeeks article "Program for Sudoku Generator" by Aarti_Rathi and Ankur Trisal
-https://www.geeksforgeeks.org/program-sudoku-generator/
-
-"""
-
 class SudokuGenerator:
     '''
 	create a sudoku board - initialize class variables and set up the 2D board
