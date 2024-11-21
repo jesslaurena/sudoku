@@ -9,15 +9,33 @@ class SudokuGenerator:
 	self.board			- a 2D list of ints to represent the board
 	self.box_length		- the square root of row_length
 
-	Parameters:
-    row_length is the number of rows/columns of the board (always 9 for this project)
-    removed_cells is an integer value - the number of cells to be removed
 
-	Return:
-	None
     '''
-    def __init__(self, row_length, removed_cells):
-        pass
+
+
+    def __init__(self, removed_cells=0, row_length=9):
+
+        choice = input("Choose difficulty level (easy, medium, hard): ").lower()
+        if choice == "easy":
+            removed_cells = 30
+        elif choice == "medium":
+            removed_cells = 40
+        elif choice == "hard":
+            removed_cells = 50
+        else:
+            print("Invalid choice. Defaulting to easy.")
+            removed_cells = 30
+
+        self.row_length = row_length
+        self.removed_cells = removed_cells
+        self.board = self.initialize()
+
+    def initialize(self):
+        return [["-" for _ in range(self.row_length)] for _ in range(self.row_length)]
+
+    def print_board(self):
+        for row in self.board:
+            print(" ".join(row))
 
     '''
 	Returns a 2D python list of numbers which represents the board
