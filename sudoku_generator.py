@@ -14,22 +14,11 @@ class SudokuGenerator:
 
 
     def __init__(self, removed_cells=0, row_length=9):
-
-        choice = input("Choose difficulty level (easy, medium, hard): ").lower()
-        if choice == "easy":
-            removed_cells = 30
-        elif choice == "medium":
-            removed_cells = 40
-        elif choice == "hard":
-            removed_cells = 50
-        else:
-            print("Invalid choice. Defaulting to easy.")
-            removed_cells = 30
-
         self.row_length = row_length
         self.box_length = int(row_length ** 1/2)
         self.removed_cells = removed_cells
         self.board = self.initialize()
+        self.key = []
 
     def initialize(self):
         return [["-" for _ in range(self.row_length)] for _ in range(self.row_length)]
@@ -45,7 +34,7 @@ class SudokuGenerator:
 	Return: list[list]
     '''
     def get_board(self):
-        pass
+        return self.board
 
     '''
 	Displays the board to the console
@@ -244,8 +233,19 @@ class SudokuGenerator:
 	Parameters: None
 	Return: None
     '''
+
     def remove_cells(self):
-        pass
+        n = 0
+        self.key = self.board
+        while n < self.removed_cells:
+            row = random.randint(0, self.row_length - 1)
+            col = random.randint(0, self.row_length - 1)
+            if self.board[row][col] == 0:
+                continue
+            else:
+                self.board[row][col] = 0
+                n += 1
+
 
 '''
 DO NOT CHANGE
@@ -270,6 +270,10 @@ def generate_sudoku(size, removed):
     board = sudoku.get_board()
     return board
 
-board = SudokuGenerator(0,9)
-board.fill_values()
-board.print_board()
+# board = SudokuGenerator(0,9)
+# board.fill_values()
+# board.print_board()
+# board.remove_cells()
+# print()
+# print()
+# board.print_board()
