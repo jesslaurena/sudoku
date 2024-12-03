@@ -13,9 +13,9 @@ clock = pygame.time.Clock()
 
 
 pygame.font.init()
-font = pygame.font.Font(None, 50)
-title_font = pygame.font.Font(None, 100)
-subtitle_font = pygame.font.Font(None, 70)
+font = pygame.font.SysFont("Times New Roman", 40)
+title_font = pygame.font.SysFont("Times New Roman", 80)
+subtitle_font = pygame.font.SysFont("Times New Roman", 65, italic=True)
 
 
 class Title:
@@ -103,32 +103,59 @@ current_board = None
 
 
 def easy_board_fill_action():
-    bd = SudokuGenerator(1)
+    bd = SudokuGenerator(30)
     bd.fill_values()
     key = copy.deepcopy(bd.board)
     bd.remove_cells()
-    return key, bd.board
+    og_bd = copy.deepcopy(bd.board)
+    return key, bd.board, og_bd
 
 def medium_board_fill_action():
     bd = SudokuGenerator(40)
     bd.fill_values()
     key = copy.deepcopy(bd.board)
     bd.remove_cells()
-    return key, bd.board
+    og_bd = copy.deepcopy(bd.board)
+    return key, bd.board, og_bd
 
 def hard_board_fill_action():
     bd = SudokuGenerator(50)
     bd.fill_values()
     key = copy.deepcopy(bd.board)
     bd.remove_cells()
-    return key, bd.board
+    og_bd = copy.deepcopy(bd.board)
+    return key, bd.board, og_bd
+
+def reset_action(game_bd, og_bd, visual_board):
+    game_bd = copy.deepcopy(og_bd)
+    visual_board = Board(729, 729, screen)
+    for row in range(len(game_bd[0])):
+        for col in range(len(game_bd[0])):
+            cell = Cell(game_bd[row][col], row, col, screen)
+            visual_board.add_cell(cell)
+    return game_bd, og_bd, visual_board
+
+def restart_action():
+    main_menu()
+
+def exit_action():
+    pygame.quit()
+    sys.exit()
 
 
 buttons = [
-   Button("Easy", 268, 330, 200, 60, "cyan2", "green", easy_board_fill_action),
-   Button("Medium", 268, 430, 200, 60, "cyan3", "yellow", medium_board_fill_action),
-   Button("Hard", 268, 530, 200, 60, "cyan4", "red", hard_board_fill_action),
+   Button("Easy", 268, 330, 200, 60, "cyan2", "bisque", easy_board_fill_action),
+   Button("Medium", 268, 430, 200, 60, "cyan3", "lightpink", medium_board_fill_action),
+   Button("Hard", 268, 530, 200, 60, "cyan4", "lightpink2", hard_board_fill_action),
 ]
+
+
+reset = Button("Reset", 122,740, 120, 40, "pink", "lightpink2", reset_action)
+restart = Button("Restart", 304, 740, 125, 40, "pink", "lightpink2", restart_action)
+exit = Button("Exit", 486, 740, 120, 40, "pink", "lightpink2", exit_action)
+
+win_exit = Button("Exit", 268, 430, 200, 60, "pink", "lightpink2", exit_action)
+lose_restart = Button("Restart", 268, 430, 200, 60, "pink", "lightpink2", restart_action)
 
 
 # def game_loop():
@@ -153,18 +180,25 @@ def check(key, game_bd):
                 return False
     return True
 
-def win():
+def win(event):
     screen.fill("lightskyblue1")
     end_text = f"You won!"
-    end_surf = font.render(end_text, True, "black")
+    end_surf = title_font.render(end_text, True, "black")
     end_rect = end_surf.get_rect(center=(364, 300))
     screen.blit(end_surf, end_rect)
-def lose():
+    win_exit.draw(screen)
+    if win_exit.is_clicked(event):
+        win_exit.action()
+def lose(event):
     screen.fill("lightskyblue1")
-    end_text = f"You lost!"
-    end_surf = font.render(end_text, True, "black")
+    end_text = f"You lost :("
+    end_surf = title_font.render(end_text, True, "black")
     end_rect = end_surf.get_rect(center=(364, 300))
     screen.blit(end_surf, end_rect)
+    lose_restart.draw(screen)
+    if lose_restart.is_clicked(event):
+        lose_restart.action()
+
 
 def main_menu():
    visual_board = None
@@ -178,6 +212,9 @@ def main_menu():
 
        if visual_board:
            visual_board.draw()
+           reset.draw(screen)
+           restart.draw(screen)
+           exit.draw(screen)
 
        for event in pygame.event.get():
            if event.type == pygame.QUIT:
@@ -187,14 +224,19 @@ def main_menu():
                if visual_board == None:
                    for button in buttons:
                        if button.is_clicked(event):
-                           key, game_bd = button.action()
-                           print(key)
+                           key, game_bd, og_bd = button.action()
                            visual_board = Board(729, 729, screen)
                            for row in range(len(game_bd[0])):
                                for col in range(len(game_bd[0])):
                                    cell = Cell(game_bd[row][col], row, col, screen)
                                    visual_board.add_cell(cell)
                if visual_board:
+                   if reset.is_clicked(event):
+                       game_bd, og_bd, visual_board = reset.action(game_bd, og_bd, visual_board)
+                   if restart.is_clicked(event):
+                       restart.action()
+                   if exit.is_clicked(event):
+                       exit_action()
                    x, y = event.pos
                    row = x // 81
                    col = y // 81
@@ -205,7 +247,48 @@ def main_menu():
                        if row == cell.row and col == cell.col:
                            cell.select = True
                            sel_cell = cell
+
            if event.type == pygame.KEYDOWN:
+               if event.key == pygame.K_UP:
+                   if col > 0:
+                       col -= 1
+                       for cell in visual_board.cell_list:
+                           if cell.select == True:
+                               cell.select = False
+                       for cell in visual_board.cell_list:
+                           if row == cell.row and col == cell.col:
+                               cell.select = True
+                               sel_cell = cell
+               if event.key == pygame.K_DOWN:
+                   if col < 8:
+                       col += 1
+                       for cell in visual_board.cell_list:
+                           if cell.select == True:
+                               cell.select = False
+                       for cell in visual_board.cell_list:
+                           if row == cell.row and col == cell.col:
+                               cell.select = True
+                               sel_cell = cell
+               if event.key == pygame.K_LEFT:
+                   if row > 0:
+                       row -= 1
+                       for cell in visual_board.cell_list:
+                           if cell.select == True:
+                               cell.select = False
+                       for cell in visual_board.cell_list:
+                           if row == cell.row and col == cell.col:
+                               cell.select = True
+                               sel_cell = cell
+               if event.key == pygame.K_RIGHT:
+                   if row < 8:
+                       row += 1
+                       for cell in visual_board.cell_list:
+                           if cell.select == True:
+                               cell.select = False
+                       for cell in visual_board.cell_list:
+                           if row == cell.row and col == cell.col:
+                               cell.select = True
+                               sel_cell = cell
                if sel_cell.value == 0:
                    if event.key == pygame.K_1:
                        sel_cell.set_sketched_value(1)
@@ -239,9 +322,9 @@ def main_menu():
            if is_full:
                result = check(key, game_bd)
                if result:
-                   win()
+                   win(event)
                else:
-                   lose()
+                   lose(event)
 
        pygame.display.update()
 

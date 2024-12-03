@@ -17,20 +17,21 @@ class Cell:
 
     def draw(self):
         pygame.font.init()
-        font = pygame.font.Font(None, 100)
+        font = pygame.font.SysFont("Times New Roman", 65)
         if self.value != 0:
             cell_surf = font.render(str(self.value), True, "black")
-            cell_rect = cell_surf.get_rect(topleft=(self.row * 81 + 20, self.col * 81 + 10))
+            cell_rect = cell_surf.get_rect(topleft=(self.row * 81 + 25, self.col * 81 + 10))
             self.screen.blit(cell_surf, cell_rect)
         if self.select == True:
             pygame.draw.rect(self.screen, "red", pygame.Rect( self.row * 81, self.col * 81, 81, 81), 2)
         if self.sketch != 0:
-            cell_surf = font.render(str(self.sketch), True, "gray")
-            cell_rect = cell_surf.get_rect(topleft=(self.row * 81 + 20, self.col * 81 + 10))
+            cell_surf = font.render(str(self.sketch), True, "lightskyblue4")
+            cell_rect = cell_surf.get_rect(topleft=(self.row * 81 + 25, self.col * 81 + 10))
             self.screen.blit(cell_surf, cell_rect)
 
 
 class Board:
+
     def __init__(self, width, height, screen):
         self.width = width
         self.height = height
@@ -53,24 +54,3 @@ class Board:
                 pygame.draw.line(self.screen, "lightslateblue", (pos, 0), (pos, self.height), 1)
         for cell in self.cell_list:
             cell.draw()
-
-    def select(self, row, col):
-        pass
-    def click(self, row, col):
-        pass
-    def clear(self):
-        pass
-    def sketch(self, value):
-        pass
-    def place_number(self, value):
-        pass
-    def reset_to_orignal(self):
-        pass
-    def is_full(self):
-        pass
-    def update_board(self):
-        pass
-    def find_empty(self):
-        pass
-    def check_board(self):
-        pass
